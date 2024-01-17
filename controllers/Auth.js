@@ -9,7 +9,7 @@ exports.signUp = async (req, res) => {
     const existingUser = await User.findOne({ email });
 
     if (!name || !password || !email || !role) {
-      return res.status(403).send({
+      return res.status(403).json({
         success: false,
         message: "All Fields are required",
       });
@@ -56,22 +56,23 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.json({
+      return res.status(409).json({
         success: false,
         message: "Fill all the fields",
       });
     }
 
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ email }).populate("blogs").exec();
 
     if (!user) {
-      return res.json({
+      return res.status(409).json({
         success: false,
         message: "User is not registered",
       });
     }
 
     const payload = {
+      name:user.name,
       email: user.email,
       id: user._id,
       role: user.role,
@@ -97,7 +98,7 @@ exports.login = async (req, res) => {
         message: "User is Logged in",
       });
     } else {
-      return res.json({
+      return res.status(401).json({
         success: false,
         message: "Incorrect Password",
       });

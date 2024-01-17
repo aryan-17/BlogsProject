@@ -18,6 +18,7 @@ const server = createServer(app);
 const io = new Server(server);
 const home = join(__dirname, "static", "index.hbs");
 
+app.use(express.static(join(__dirname, 'static')));
 app.use(cookieParser());
 app.use(express.json());
 app.set("view engine","hbs");

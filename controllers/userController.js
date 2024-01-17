@@ -25,3 +25,22 @@ exports.showUsers = async (req, res) => {
     });
   }
 };
+
+
+exports.showUserData = async(req,res)=>{
+  try{
+    
+    const userData = req.user;
+    return res.status(200).json({
+      success:true,
+      message:userData,
+    })
+
+  }
+  catch(err){
+    return res.status(500).json({
+      success:false,
+      message:err.message,
+    })
+  }
+}

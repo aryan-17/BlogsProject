@@ -33,9 +33,9 @@ exports.auth = async (req, res, next) => {
   }
 };
 
-exports.isStudent = async (req, res, next) => {
+exports.isUser = async (req, res, next) => {
   try {
-    if (req.user.role != "Student") {
+    if (req.user.role != "User") {
       return res.status(401).json({
         success: false,
         message: "You arent a Student",

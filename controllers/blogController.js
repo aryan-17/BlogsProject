@@ -1,10 +1,13 @@
 const Blogs = require("../models/Blogs");
 const User = require("../models/User");
+const { default: axios } = require("axios");
+const Requests = require("../models/Requests");
 
 exports.getBlogs = async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name } = req.query;
     const userToSearch = await User.findOne({ name });
+
 
     if (!userToSearch) {
       return res.json({
@@ -13,9 +16,9 @@ exports.getBlogs = async (req, res) => {
       });
     }
 
-    const blogsForUser = await Blogs.findById(userToSearch);
+    const blogsForUser = await Blogs.find({user:userToSearch._id ,status:"Approved"});
 
-    if (!blogsForUser) {
+    if (!blogsForUser || blogsForUser.length==0) {
       return res.json({
         success: false,
         message: "No Blogs Found for Selected User",
@@ -39,7 +42,7 @@ exports.getBlogs = async (req, res) => {
 exports.showAllBlogs = async (req, res) => {
   try{
 
-    const allBlogs = await Blogs.find({});
+    const allBlogs = await Blogs.find({status:"Approved"});
 
     if(!allBlogs){
       return res.json({
@@ -68,20 +71,29 @@ exports.addBlog = async (req, res) => {
   try {
     const { title, content } = req.body;
 
-    console.log(req.user);
+    let status;
 
-    if (req.user.role !== "Admin") {
-      return res.json({
-        success: false,
-        message: "You are not authorized to publish any Blogs",
-      });
+    if(req.user.role==="Admin"){
+      status = "Approved"
+    }
+    else{
+      status = "Pending"
     }
 
     const publishedBlog = await Blogs.create({
       user: req.user.id,
       title: title,
       content: content,
+      status: status
     });
+
+    if(publishedBlog.status==="Pending"){
+      const requests = await Requests.create({
+      user:publishedBlog.user,
+      blogs:publishedBlog._id
+    })}
+
+
 
     const admin = await User.findByIdAndUpdate(
       { _id: req.user.id },

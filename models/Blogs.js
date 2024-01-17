@@ -14,6 +14,11 @@ const blogSchema = new mongoose.Schema({
         type:String,
         required:true,
         maxLength:50,
+    },
+    status:{
+        type:String,
+        enum:["Approved","Rejected","Pending"],
+        required:true
     }
 })
 
